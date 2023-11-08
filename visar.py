@@ -1,3 +1,1 @@
-print("hi)
-print("visar")
-print("nigga")
+print("hi")
