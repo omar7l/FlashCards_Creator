@@ -68,6 +68,58 @@ def perform_ocr_and_render(pdf_file, image_folder, output_text_file, dpi=300, nu
                 print(f'Extracted text from Page {page_number}')
 
 
+def ai_generate_flashcards(ocr_data, assistant_id, api_key2):
+    client = openai.Client(api_key=api_key2)
+
+    # Function to wait for the run to complete
+    def wait_for_run_completion(thread_id):
+        while True:
+            runs = client.beta.threads.runs.list(thread_id=thread_id)
+            if not runs.data or runs.data[-1].status in ["completed", "failed"]:
+                break
+            time.sleep(1)
+
+    # Create a Thread with the OCR data as the initial user message
+    print("Creating thread with OCR data...")
+    thread = client.beta.threads.create(
+        messages=[{
+            "role": "user",
+            "content": ocr_data
+        }]
+    )
+
+    # Create a Run with the specified assistant
+    print("Creating run with assistant...")
+    client.beta.threads.runs.create(
+        thread_id=thread.id,
+        assistant_id=assistant_id
+    )
+
+    # Wait for the OCR data run to complete
+    print("Waiting for OCR data run to complete...")
+    wait_for_run_completion(thread.id)
+
+    # Fetch and process the final JSON response
+    print("Fetching final response...")
+    messages = client.beta.threads.messages.list(thread_id=thread.id)
+    for message in messages.data:
+        if message.role == 'assistant':
+            message_text = message.content[0].text.value
+            print(f"Received message from assistant: {message_text}")
+            try:
+                #if message text first character is not a { then remove everything before the first {
+                if message_text[0] != '{':
+                    message_text = message_text[message_text.find('{'):]
+                #if the last character is not a } then remove everything after the last }
+                if message_text[-1] != '}':
+                    message_text = message_text[:message_text.rfind('}') + 1]
+                return json.loads(message_text)
+            except json.JSONDecodeError:
+                continue
+
+    return None
+
+
 def delete_files(image_folder):
     for filename in os.listdir(image_folder):
         file_path = os.path.join(image_folder, filename)
@@ -81,7 +133,7 @@ def delete_files(image_folder):
 
 def convert_json_to_csv(json_data, csv_file):
     # Load JSON data
-    data = json.loads(json_data)
+    data = json_data  # Remove json.loads since json_data is already a JSON object
 
     # Open a CSV file for writing
     with open(csv_file, 'w', newline='') as csvfile:
@@ -96,67 +148,6 @@ def convert_json_to_csv(json_data, csv_file):
 
 
 
-def ai_generate_flashcards(prompt, assistant_id, api_key2):
-    client = openai.Client(api_key=api_key2)
-
-    # Create a Thread with an initial user message
-    print("Creating thread...")
-    thread = client.beta.threads.create(
-        messages=[{
-            "role": "user",
-            "content": prompt
-        }]
-    )
-
-    # Create a Run with the specified assistant
-    print("Creating run with assistant...")
-    run = client.beta.threads.runs.create(
-        thread_id=thread.id,
-        assistant_id=assistant_id
-    )
-
-    # Spinner for loading animation
-    spinner = ["-", "\\", "|", "/"]
-    spin_index = 0
-
-    # Polling for Run completion with timeout
-    print("Waiting for response...")
-    start_time = time.time()
-    while True:
-        elapsed_time = time.time() - start_time
-        if elapsed_time > 60:  # 60 seconds timeout
-            print("Timeout reached. No response within 60 seconds.")
-            return None
-
-        run_status = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id).status
-        if run_status in ["completed", "failed"]:
-            break
-
-        # Print loading spinner
-        print(spinner[spin_index % 4], end="\r")
-        spin_index += 1
-        time.sleep(0.1)
-
-    if run_status == "failed":
-        print("Run failed to complete.")
-        return None
-
-    # Retrieve the Assistant's messages after Run completion
-    messages = client.beta.threads.messages.list(thread_id=thread.id)
-    for message in messages.data:
-        if message.role == 'assistant':
-            print("New message from assistant:", message.content)
-            try:
-                content_json = json.loads(message.content)
-                if 'acknowledged' in content_json.values():
-                    print("Acknowledged received in JSON format.")
-                    return content_json
-            except json.JSONDecodeError:
-                continue
-
-    return None
-
-
 if __name__ == "__main__":
     pdf_file = "./input/10_Gaddis Python_Lecture_ppt_ch10.pdf"  # Replace with your PDF file path
     tmp_folder = "./tmp"  # Replace with the folder where you want to save the images
@@ -164,7 +155,7 @@ if __name__ == "__main__":
     num_threads = 8
     # openai params
     assistant_id = "asst_7fMAud27Ph7NLaokksbuHcQC"
-    api_key = "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"
+    api_key = "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"
 
     #perform_ocr_and_render(pdf_file, tmp_folder, 'output.txt', dpi, num_threads)
 
@@ -176,7 +167,7 @@ if __name__ == "__main__":
     #print out data
     #print(data)
     #generate flashcards
-    response = ai_generate_flashcards(data + "\n presto123!", assistant_id, api_key)
+    response = ai_generate_flashcards(data, assistant_id, api_key)
 
     #print out response
     print(response)
