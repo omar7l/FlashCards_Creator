@@ -137,7 +137,7 @@ def convert_json_to_csv(json_data, csv_file):
     data = json_data  # Remove json.loads since json_data is already a JSON object
 
     # Open a CSV file for writing
-    with open(csv_file, 'w', newline='') as csvfile:
+    with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile:
         # Create a CSV writer
         csv_writer = csv.writer(csvfile, delimiter='\t')
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     num_threads = 8
     # openai params
     assistant_id = "asst_7fMAud27Ph7NLaokksbuHcQC"
-    api_key = "your_api_key_here"
+    api_key = "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"
 
     perform_ocr_and_render(pdf_file, tmp_folder, './tmp/output.txt', dpi, num_threads)
 
