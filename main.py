@@ -107,6 +107,7 @@ def ai_generate_flashcards(ocr_data, assistant_id, api_key2):
             message_text = message.content[0].text.value
             print(f"Received message from assistant: {message_text}")
             try:
+                #Code cleanup
                 #if message text first character is not a { then remove everything before the first {
                 if message_text[0] != '{':
                     message_text = message_text[message_text.find('{'):]
@@ -138,7 +139,7 @@ def convert_json_to_csv(json_data, csv_file):
     # Open a CSV file for writing
     with open(csv_file, 'w', newline='') as csvfile:
         # Create a CSV writer
-        csv_writer = csv.writer(csvfile)
+        csv_writer = csv.writer(csvfile, delimiter='\t')
 
         # Iterate through the flashcards and write each front and back to a row
         for flashcard in data['flashcards']:
@@ -155,12 +156,12 @@ if __name__ == "__main__":
     num_threads = 8
     # openai params
     assistant_id = "asst_7fMAud27Ph7NLaokksbuHcQC"
-    api_key = "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"
+    api_key = "your_api_key_here"
 
-    #perform_ocr_and_render(pdf_file, tmp_folder, 'output.txt', dpi, num_threads)
+    perform_ocr_and_render(pdf_file, tmp_folder, './tmp/output.txt', dpi, num_threads)
 
     #get the text from the output.txt file (utf-8)
-    with open('output.txt', 'r', encoding='utf-8') as file:
+    with open('./tmp/output.txt', 'r', encoding='utf-8') as file:
         data = file.read().replace('\n', '')
 
 
@@ -171,10 +172,6 @@ if __name__ == "__main__":
 
     #print out response
     print(response)
-
-    #save the response to a json file
-    with open('sample.json', 'w') as outfile:
-        json.dump(response, outfile)
 
     #convert json to csv
     convert_json_to_csv(response, 'output.csv')
