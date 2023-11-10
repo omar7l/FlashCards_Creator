@@ -4,6 +4,7 @@ import pytesseract
 import concurrent.futures
 from PIL import Image
 import openai
+import time
 
 import csv
 import json
@@ -96,31 +97,64 @@ def convert_json_to_csv(json_data, csv_file):
 
 
 def ai_generate_flashcards(prompt, assistant_id, api_key2):
-    client = openai.Client(
-        api_key=api_key2
-    )
-    # Create a new Thread for a new user or session
-    thread = client.beta.threads.create()
+    client = openai.Client(api_key=api_key2)
 
-    # Add the user's message to the thread
-    message = client.beta.threads.messages.create(
-        thread_id=thread.id,
-        role="user",
-        content=prompt
+    # Create a Thread with an initial user message
+    print("Creating thread...")
+    thread = client.beta.threads.create(
+        messages=[{
+            "role": "user",
+            "content": prompt
+        }]
     )
 
-    # Create a run to get the assistant to respond
+    # Create a Run with the specified assistant
+    print("Creating run with assistant...")
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
         assistant_id=assistant_id
     )
 
-    # Retrieve the assistant's messages
-    messages = client.beta.threads.messages.list(thread_id=thread.id)
+    # Spinner for loading animation
+    spinner = ["-", "\\", "|", "/"]
+    spin_index = 0
 
-    # Extract the assistant's response
-    response = next((m.content for m in messages.data if m.role == 'assistant'), None)
-    return response
+    # Polling for Run completion with timeout
+    print("Waiting for response...")
+    start_time = time.time()
+    while True:
+        elapsed_time = time.time() - start_time
+        if elapsed_time > 60:  # 60 seconds timeout
+            print("Timeout reached. No response within 60 seconds.")
+            return None
+
+        run_status = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id).status
+        if run_status in ["completed", "failed"]:
+            break
+
+        # Print loading spinner
+        print(spinner[spin_index % 4], end="\r")
+        spin_index += 1
+        time.sleep(0.1)
+
+    if run_status == "failed":
+        print("Run failed to complete.")
+        return None
+
+    # Retrieve the Assistant's messages after Run completion
+    messages = client.beta.threads.messages.list(thread_id=thread.id)
+    for message in messages.data:
+        if message.role == 'assistant':
+            print("New message from assistant:", message.content)
+            try:
+                content_json = json.loads(message.content)
+                if 'acknowledged' in content_json.values():
+                    print("Acknowledged received in JSON format.")
+                    return content_json
+            except json.JSONDecodeError:
+                continue
+
+    return None
 
 
 if __name__ == "__main__":
