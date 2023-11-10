@@ -1,50 +1,44 @@
-# Byte-compiled / optimized / DLL files
+# PyCharm
+.idea/
+
+#tmp folder
+tmp/
+
+# Compiled Python files
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
+__pycache__/
 
-# C extensions
-*.so
+# Virtual Environment
+venv/
+env/
+*.env/
 
-# Distribution / packaging
-bin/
-build/
-develop-eggs/
-dist/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+# macOS system files
+.DS_Store
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Windows Thumbs.db files
+Thumbs.db
 
-# Unit test / coverage reports
-.tox/
-.coverage
-.cache
-nosetests.xml
-coverage.xml
+# Editor-specific files
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+.komodotools/
+.editorconfig
 
-# Translations
-*.mo
+# Jupyter Notebook
+.ipynb_checkpoints/
 
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-
-# Rope
-.ropeproject
-
-# Django stuff:
+# Logs and databases
 *.log
-*.pot
+*.sqlite
+*.db
+*.json
+*.csv
 
-# Sphinx documentation
-docs/_build/
+# Dependency management
+pip-log.txt
+requirements.txt
