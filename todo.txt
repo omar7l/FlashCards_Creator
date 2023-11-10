@@ -1,0 +1,14 @@
+1. Fix OpenAI connectivity with assistant
+2. Populate the requirements.txt file with the required packages to ease the installation process
+3. Add GUI
+4. Cleanup the code (It's a mess right now)
+4.1 Add comments
+4.2 Add docstrings
+4.3 Add type hints
+4.4 split the code into multiple files
+5. Write Tutorial on how to install and use the assistant (especiall tessaract)
+6. Add proper testing
+7. Create a Virtual Machine using .devcontainer (better demonstration of the project)
+8. Finish the README.md file
+9. Grab a coffee and relax
+10. Present the project to the lecturer
