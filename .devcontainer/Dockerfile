@@ -6,7 +6,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install system dependencies for PyTesseract
-RUN apt-get update && apt-get install -y tesseract-ocr libtesseract-dev
+RUN sudo apt-get update && sudo apt-get install -y tesseract-ocr libtesseract-dev
 
 # Copy the current directory contents into the WORKDIR
 COPY . .
