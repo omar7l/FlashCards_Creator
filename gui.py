@@ -395,7 +395,7 @@ def clear_selection():
 # create a function upload_file() that will be called when the upload button is clicked and returns the path of the file
 def convert_file():
     pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator("asst_7fMAud27Ph7NLaokksbuHcQC", "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")
+    flashcard_creator = FlashcardCreator("assist_key", "api_key")
     tmp_folder = relative_to_project("tmp")
     tmp_output = relative_to_project("tmp/output.txt")
     dpi = 500
@@ -422,6 +422,7 @@ def convert_file():
     pdf_convert.delete_files(tmp_folder)
     output_converter.delete_files(OUTPUT_PATH)
 
+# create run me
 
 window.resizable(False, False)
 window.mainloop()
