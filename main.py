@@ -150,18 +150,18 @@ def convert_json_to_csv(json_data, csv_file):
 
 
 if __name__ == "__main__":
-    pdf_file = "./input/10_Gaddis Python_Lecture_ppt_ch10.pdf"  # Replace with your PDF file path
-    tmp_folder = "./tmp"  # Replace with the folder where you want to save the images
+    pdf_file = "//Users/kenanahmetasevic/Desktop/005_CF_and_Controlling_Measuring_Corporate_Performance_Exercises.pdf"  # Replace with your PDF file path
+    tmp_folder = "/Users/kenanahmetasevic/Desktop/tmp"  # Replace with the folder where you want to save the images
     dpi = 500
     num_threads = 8
     # openai params
-    assistant_id = "asst_7fMAud27Ph7NLaokksbuHcQC"
-    api_key = "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"
+    assistant_id = "ass_id"
+    api_key = "api_key"
 
-    perform_ocr_and_render(pdf_file, tmp_folder, './tmp/output.txt', dpi, num_threads)
+    perform_ocr_and_render(pdf_file, tmp_folder, '/Users/kenanahmetasevic/Desktop/tmp/output.txt', dpi, num_threads)
 
     #get the text from the output.txt file (utf-8)
-    with open('./tmp/output.txt', 'r', encoding='utf-8') as file:
+    with open('/Users/kenanahmetasevic/Desktop/tmp/output.txt', 'r', encoding='utf-8') as file:
         data = file.read().replace('\n', '')
 
 
@@ -174,6 +174,6 @@ if __name__ == "__main__":
     print(response)
 
     #convert json to csv
-    convert_json_to_csv(response, 'output.csv')
+    convert_json_to_csv(response, 'output/output.csv')
 
     delete_files(tmp_folder)
