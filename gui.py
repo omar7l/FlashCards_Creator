@@ -279,7 +279,6 @@ def on_drop(event):
 
     )
     clear_button.config(image=img_clear_clickable)
-    convert_button.config(image=img_convert_clickable)
     convert_button.config(command=lambda: convert_file())
 
     print(MAIN_PATH)
@@ -314,7 +313,6 @@ def select_file():
         font=("Inter", adjust_font_size() * -1)
     )
     clear_button.config(image=img_clear_clickable)
-    convert_button.config(image=img_convert_clickable)
     convert_button.config(command=lambda: convert_file())
 
 def openFile():
@@ -354,12 +352,11 @@ def hide_tooltip():
 
 def on_radiobutton_selected(value):
     print(f"Selected option: {value}")
-
+    if value != 0:
+        convert_button.config(image=img_convert_clickable)
     return value
 
-
 def clear_selection():
-
     global selected_file
     selected_file = None
 
@@ -386,14 +383,21 @@ def clear_selection():
     clear_button.config(image=img_clear_unclickable)
     convert_button.config(image=img_convert_unclickable)
 
+    radio_var.set(0)
+
 
 def convert_file():
     pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator("assist_id", "api_key")  #enter the assistant id and api key here
+    flashcard_creator = FlashcardCreator("asst_7fMAud27Ph7NLaokksbuHcQC", "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")  #enter the assistant id and api key here
     tmp_folder = relative_to_project("tmp")
     tmp_output = relative_to_project("tmp/output.txt")
     dpi = 500
     num_threads = 8
+
+    if on_radiobutton_selected(radio_var.get()) == 0:
+        print("Please select an output data type")
+        return
+
 
     pdf_convert.perform_ocr_and_render(selected_file, tmp_folder, tmp_output, dpi, num_threads)
 
@@ -402,9 +406,7 @@ def convert_file():
     output_converter = OutputConverter()
     output_converter.convert_to_json(relative_to_output("output.json"), data)
 
-    if on_radiobutton_selected(radio_var.get()) == 0:
-        print("No option selected")
-    elif on_radiobutton_selected(radio_var.get()) == 1:
+    if on_radiobutton_selected(radio_var.get()) == 1:
         output_converter.download_file(relative_to_output("output.json"))
     elif on_radiobutton_selected(radio_var.get()) == 2:
         output_converter.convert_to_csv(relative_to_output("output.csv"), data)
