@@ -249,7 +249,6 @@ radio_btn_3 = tk.Radiobutton(
 radio_btn_3.place(x=423.0, y=684.0)
 
 
-#TODO: add a Exception handler or a infobox for when the file cannot be found due to illegal characters in the file name
 def on_drop(event):
 
     file_path = event.data
@@ -286,7 +285,6 @@ def on_drop(event):
     print(MAIN_PATH)
     print(ASSETS_PATH)
 
-#TODO: add a Exception handler or a infobox for when the file cannot be found due to illegal characters in the file name
 def select_file():
 
     file_path = filedialog.askopenfilename(title="Select a file")
@@ -330,7 +328,6 @@ def openFile():
 def adjust_font_size():
 
     text_name = os.path.basename(selected_file)
-    #text_name = text_name[:-4]
     print(text_name)
 
     if len(text_name) > 40:
@@ -340,8 +337,6 @@ def adjust_font_size():
     else:
         font_size = 20
 
-    #print(font_size)
-    #print(len(text_name))
     return int(font_size)
 
 def show_tooltip():
@@ -392,10 +387,9 @@ def clear_selection():
     convert_button.config(image=img_convert_unclickable)
 
 
-# create a function upload_file() that will be called when the upload button is clicked and returns the path of the file
 def convert_file():
     pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator("assist_key", "api_key")
+    flashcard_creator = FlashcardCreator("assist_id", "api_key")  #enter the assistant id and api key here
     tmp_folder = relative_to_project("tmp")
     tmp_output = relative_to_project("tmp/output.txt")
     dpi = 500
@@ -416,13 +410,18 @@ def convert_file():
         output_converter.convert_to_csv(relative_to_output("output.csv"), data)
         output_converter.download_file(relative_to_output("output.csv"))
     elif on_radiobutton_selected(radio_var.get()) == 3:
-        anki_converter = AnkiConverter("anki_deck")
+        anki_converter = AnkiConverter()
+        anki_converter.check_decks()
+        anki_converter.create_deck()
         anki_converter.convert_to_anki(relative_to_output("output.json"))
 
     pdf_convert.delete_files(tmp_folder)
     output_converter.delete_files(OUTPUT_PATH)
 
-# create run me
+def run():
+    window.resizable(False, False)
+    window.mainloop()
 
-window.resizable(False, False)
-window.mainloop()
+if __name__ == "__main__":
+    run()
+
