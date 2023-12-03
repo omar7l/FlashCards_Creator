@@ -11,6 +11,18 @@ MAIN_PATH = Path(__file__).parent
 ASSETS_PATH = Path(__file__).parent / "build" / "assets" / "frame0"
 OUTPUT_PATH = Path(__file__).parent / "output"
 
+#I have added this specific line of code to make the program work on windows.
+#This is because the program was not able to find the tcl and tk libraries.
+#For the moment, this should work fine, but if you have any issues, please let me know.
+if os.name == 'nt':
+    #get the appdata local path
+    appdata_local = os.getenv('LOCALAPPDATA')
+    os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tcl8.6"
+    os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tk8.6"
+    os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tcl8.6"
+    os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tk8.6"
+
+
 
 # initialize global variables
 selected_file = None
@@ -18,34 +30,37 @@ txt_select_1 = None
 txt_select_2 = None
 
 
-#function to get the path of the assets folder
+# function to get the path of the assets folder
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
-#function to get the path for the entire project
+
+# function to get the path for the entire project
 def relative_to_project(path: str) -> Path:
     return MAIN_PATH / Path(path)
+
 
 def relative_to_output(path: str) -> Path:
     return OUTPUT_PATH / Path(path)
 
+
 # create window
 window = TkinterDnD.Tk()
 window.geometry("604x830")
-window.configure(bg = "#FFFFFF")
+window.configure(bg="#FFFFFF")
 window.title("Jet")
 
 # create outer canvas
 main_canvas = Canvas(
     window,
-    bg = "#FFFFFF",
-    height = 830,
-    width = 604,
-    bd = 0,
-    highlightthickness = 0,
-    relief = "ridge"
+    bg="#FFFFFF",
+    height=830,
+    width=604,
+    bd=0,
+    highlightthickness=0,
+    relief="ridge"
 )
-main_canvas.place(x = 0, y = 0)
+main_canvas.place(x=0, y=0)
 
 main_canvas.create_text(
     261.0,
@@ -130,7 +145,6 @@ info_text = tooltip.create_text(
 tooltip.place_forget()
 info_box.bind("<Enter>", lambda event: show_tooltip())
 info_box.bind("<Leave>", lambda event: hide_tooltip())
-
 
 img_select_clickable = PhotoImage(
     file=relative_to_assets("select_clickable.png"))
@@ -250,7 +264,6 @@ radio_btn_3.place(x=423.0, y=684.0)
 
 
 def on_drop(event):
-
     file_path = event.data
     file_name = os.path.basename(file_path)
     file_name = file_name[:-4]
@@ -284,8 +297,8 @@ def on_drop(event):
     print(MAIN_PATH)
     print(ASSETS_PATH)
 
-def select_file():
 
+def select_file():
     file_path = filedialog.askopenfilename(title="Select a file")
     file_name = os.path.basename(file_path)
     file_name = file_name[:-4]
@@ -315,6 +328,7 @@ def select_file():
     clear_button.config(image=img_clear_clickable)
     convert_button.config(command=lambda: convert_file())
 
+
 def openFile():
     try:
         os.system(f'open "{selected_file}"')
@@ -323,8 +337,8 @@ def openFile():
 
     print(selected_file)
 
-def adjust_font_size():
 
+def adjust_font_size():
     text_name = os.path.basename(selected_file)
     print(text_name)
 
@@ -337,8 +351,8 @@ def adjust_font_size():
 
     return int(font_size)
 
-def show_tooltip():
 
+def show_tooltip():
     while True:
         if selected_file is None:
             tooltip.place(x=127.0, y=420.0)
@@ -347,14 +361,17 @@ def show_tooltip():
             tooltip.place_forget()
             break
 
+
 def hide_tooltip():
     tooltip.place_forget()
+
 
 def on_radiobutton_selected(value):
     print(f"Selected option: {value}")
     if value != 0:
         convert_button.config(image=img_convert_clickable)
     return value
+
 
 def clear_selection():
     global selected_file
@@ -388,7 +405,8 @@ def clear_selection():
 
 def convert_file():
     pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator("asst_7fMAud27Ph7NLaokksbuHcQC", "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")  #enter the assistant id and api key here
+    flashcard_creator = FlashcardCreator("asst_7fMAud27Ph7NLaokksbuHcQC",
+                                         "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")  # enter the assistant id and api key here
     tmp_folder = relative_to_project("tmp")
     tmp_output = relative_to_project("tmp/output.txt")
     dpi = 500
@@ -397,7 +415,6 @@ def convert_file():
     if on_radiobutton_selected(radio_var.get()) == 0:
         print("Please select an output data type")
         return
-
 
     pdf_convert.perform_ocr_and_render(selected_file, tmp_folder, tmp_output, dpi, num_threads)
 
@@ -420,10 +437,11 @@ def convert_file():
     pdf_convert.delete_files(tmp_folder)
     output_converter.delete_files(OUTPUT_PATH)
 
+
 def run():
     window.resizable(False, False)
     window.mainloop()
 
+
 if __name__ == "__main__":
     run()
-
