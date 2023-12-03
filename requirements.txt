@@ -2,3 +2,5 @@ pytesseract~=0.3.10
 openai~=1.2.2
 Pillow~=10.1.0
 PyMuPDF~=1.18.14
+tkinterdnd2
+requests
