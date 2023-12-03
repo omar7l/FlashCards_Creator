@@ -406,7 +406,7 @@ def clear_selection():
 def convert_file():
     pdf_convert = PDFConverter()
     flashcard_creator = FlashcardCreator("asst_7fMAud27Ph7NLaokksbuHcQC",
-                                         "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")  # enter the assistant id and api key here
+                                         "{REDACTED}")  # enter the assistant id and api key here
     tmp_folder = relative_to_project("tmp")
     tmp_output = relative_to_project("tmp/output.txt")
     dpi = 500
