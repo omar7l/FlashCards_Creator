@@ -21,6 +21,8 @@ if os.name == 'nt':
     os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tk8.6"
     os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tcl8.6"
     os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tk8.6"
+    os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tcl8.6"
+    os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tk8.6"
 
 
 
