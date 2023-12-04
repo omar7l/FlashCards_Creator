@@ -6,10 +6,36 @@ from anki_converter import *
 from flashcard_creator import *
 from output_converter import *
 from pdf_converter import *
+from dotenv import load_dotenv
+import os
+
+#Load the environment variables
+load_dotenv("config.env")
+
+API_KEY = os.getenv('API_KEY')
+ASSISTANT_ID = os.getenv('ASSISTANT_ID')
+TMP_FOLDER = os.getenv("TMP_FOLDER")
+TMP_OUTPUT = os.getenv("TMP_OUTPUT")
+DPI = int(os.getenv("DPI"))
+NUM_THREADS = int(os.getenv("NUM_THREADS"))
+
 
 MAIN_PATH = Path(__file__).parent
 ASSETS_PATH = Path(__file__).parent / "build" / "assets" / "frame0"
 OUTPUT_PATH = Path(__file__).parent / "output"
+
+
+''' Init the required directories if they don't exist
+./tmp
+./output
+'''
+if not os.path.exists(MAIN_PATH / TMP_FOLDER):
+    os.mkdir(MAIN_PATH / TMP_FOLDER)
+if not os.path.exists(MAIN_PATH / "output"):
+    os.mkdir(MAIN_PATH / "output")
+#delete files if there are any in tmp
+for filename in os.listdir(MAIN_PATH / TMP_FOLDER):
+    os.remove(MAIN_PATH / TMP_FOLDER / filename)
 
 #I have added this specific line of code to make the program work on windows.
 #This is because the program was not able to find the tcl and tk libraries.
@@ -407,20 +433,16 @@ def clear_selection():
 
 def convert_file():
     pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator("asst_7fMAud27Ph7NLaokksbuHcQC",
-                                         "{REDACTED}")  # enter the assistant id and api key here
-    tmp_folder = relative_to_project("tmp")
-    tmp_output = relative_to_project("tmp/output.txt")
-    dpi = 500
-    num_threads = 8
+    flashcard_creator = FlashcardCreator(ASSISTANT_ID,
+                                         API_KEY)  # enter the assistant id and api key here
 
     if on_radiobutton_selected(radio_var.get()) == 0:
         print("Please select an output data type")
         return
 
-    pdf_convert.perform_ocr_and_render(selected_file, tmp_folder, tmp_output, dpi, num_threads)
+    pdf_convert.perform_ocr_and_render(selected_file, TMP_FOLDER, TMP_OUTPUT, DPI, NUM_THREADS)
 
-    data = flashcard_creator.ai_generate_flashcards(pdf_convert.serialize_data(tmp_output))
+    data = flashcard_creator.ai_generate_flashcards(pdf_convert.serialize_data(TMP_OUTPUT))
 
     output_converter = OutputConverter()
     output_converter.convert_to_json(relative_to_output("output.json"), data)
@@ -436,7 +458,7 @@ def convert_file():
         anki_converter.create_deck()
         anki_converter.convert_to_anki(relative_to_output("output.json"))
 
-    pdf_convert.delete_files(tmp_folder)
+    pdf_convert.delete_files(TMP_FOLDER)
     output_converter.delete_files(OUTPUT_PATH)
 
 
