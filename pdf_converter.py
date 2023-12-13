@@ -9,6 +9,11 @@ class PDFConverter:
     def __init__(self):
         pass
 
+
+    '''
+        This is the worker function that will be called by the thread pool executor
+        It will render the PDF page at the given page number to an image and save it to the given image folder
+    '''
     @staticmethod
     def render_pdf_worker(pdf_file, image_folder, page_number, dpi=300):
         pdf_document = fitz.open(pdf_file)
@@ -20,11 +25,32 @@ class PDFConverter:
         print(f"Page {page_number + 1} saved as {image_filename}")
         pdf_document.close()
 
+
+    '''
+        This is the worker function that will be called by the thread pool executor
+        It will perform OCR on the image at the given path and return the text
+    '''
     @staticmethod
     def ocr_worker(image_path):
-        image = Image.open(image_path)
-        text = pytesseract.image_to_string(image)
-        return text
+        try:
+            # check if the image exists
+            if not os.path.isfile(image_path):
+                print(f"Image at path {image_path} does not exist")
+                return ""
+
+            image = Image.open(image_path)
+
+            #check if the image is valid
+            if image is None:
+                print(f"Image at path {image_path} is not valid")
+                return ""
+
+            text = pytesseract.image_to_string(image)
+            return text
+        except Exception as e:
+            print(f"Error processing image at path: {image_path}")
+            print(f"Error message: {str(e)}")
+            return ""
 
     def perform_ocr_and_render(self, pdf_file, image_folder, output_text_file, dpi=300, num_threads=1):
         with open(output_text_file, 'w', encoding='utf-8') as txt_file:
@@ -42,9 +68,11 @@ class PDFConverter:
                     image_path = future_to_image[future]
                     text = future.result()
                     page_number = image_files.index(image_path) + 1
-                    txt_file.write(f'Page {page_number}:\n')
-                    txt_file.write(f'{text}\n\n')
+                    txt_file.write(f'\r\nPage {page_number}:\n')
+                    txt_file.write(f'{text }\r\n\r\n')
                     print(f'Extracted text from Page {page_number}')
+
+            #open the file and remove recurring texts (future work)
 
 
     def serialize_data(self, tmp_output):

@@ -9,6 +9,10 @@ from pdf_converter import *
 from dotenv import load_dotenv
 import os
 
+
+#Global progress bar value
+global progress_value
+
 #Load the environment variables
 load_dotenv("config.env")
 
@@ -18,6 +22,7 @@ TMP_FOLDER = os.getenv("TMP_FOLDER")
 TMP_OUTPUT = os.getenv("TMP_OUTPUT")
 DPI = int(os.getenv("DPI"))
 NUM_THREADS = int(os.getenv("NUM_THREADS"))
+TESSERACT_PATH = os.getenv("TESSERACT_PATH")
 
 
 MAIN_PATH = Path(__file__).parent
@@ -49,13 +54,29 @@ if os.name == 'nt':
     os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tk8.6"
     os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tcl8.6"
     os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tk8.6"
-
+    #tessearct path
+    pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_PATH_WINDOWS")
 
 
 # initialize global variables
 selected_file = None
 txt_select_1 = None
 txt_select_2 = None
+
+
+def create_progress_bar(canvas, x, y, width, height, progress):
+    # Clear any previous progress bar
+    canvas.delete("progress")
+
+    # Draw the background
+    canvas.create_rectangle(x, y, x + width, y + height, fill="#E0E0E0")
+
+    # Draw the progress bar
+    progress_width = width * (progress / 100)
+    canvas.create_rectangle(x, y, x + progress_width, y + height, fill="#0074D9", tags="progress")
+
+    # Update the canvas immediately
+    canvas.update()
 
 
 # function to get the path of the assets folder
@@ -436,16 +457,32 @@ def convert_file():
     flashcard_creator = FlashcardCreator(ASSISTANT_ID,
                                          API_KEY)  # enter the assistant id and api key here
 
+    total_steps = 5  # Total number of steps or tasks to complete
+    current_step = 0
+    create_progress_bar(main_canvas, 150, 760, 300, 20, current_step / total_steps * 100)
+
     if on_radiobutton_selected(radio_var.get()) == 0:
         print("Please select an output data type")
         return
 
     pdf_convert.perform_ocr_and_render(selected_file, TMP_FOLDER, TMP_OUTPUT, DPI, NUM_THREADS)
+    current_step = 1
+    create_progress_bar(main_canvas, 150, 760, 300, 20, current_step / total_steps * 100)
 
     data = flashcard_creator.ai_generate_flashcards(pdf_convert.serialize_data(TMP_OUTPUT))
 
+    return
+
+    current_step = 2
+    create_progress_bar(main_canvas, 150, 760, 300, 20, current_step / total_steps * 100)
+
+
     output_converter = OutputConverter()
     output_converter.convert_to_json(relative_to_output("output.json"), data)
+
+    current_step = 3
+    create_progress_bar(main_canvas, 150, 760, 300, 20, current_step / total_steps * 100)
+
 
     if on_radiobutton_selected(radio_var.get()) == 1:
         output_converter.download_file(relative_to_output("output.json"))
@@ -460,6 +497,12 @@ def convert_file():
 
     pdf_convert.delete_files(TMP_FOLDER)
     output_converter.delete_files(OUTPUT_PATH)
+    current_step = 4
+    create_progress_bar(main_canvas, 150, 760, 300, 20, current_step / total_steps * 100)
+
+    current_step = 5
+    create_progress_bar(main_canvas, 150, 760, 300, 20, current_step / total_steps * 100)
+
 
 
 def run():

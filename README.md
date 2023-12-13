@@ -9,6 +9,9 @@ Before using the Study Material to Flashcards Converter, make sure you have the 
 - Anki: [Anki](https://apps.ankiweb.net/)
 - AnkiConnect: [AnkiConnect](https://github.com/FooSoft/anki-connect)
 - Python (version 3.x)
+- Tesseract (Windows): https://github.com/UB-Mannheim/tesseract/wiki
+
+Upon installing these prerequisites, make sure to update the config.env file with the correct path to your AnkiConnect plugin and Tesseract installation.
 
 ## Functionalities
 

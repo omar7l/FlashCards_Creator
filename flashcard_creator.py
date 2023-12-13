@@ -2,7 +2,6 @@ import json
 import time
 import openai
 
-
 class FlashcardCreator:
 
     def __init__(self, assistant_id, api_key):
@@ -45,10 +44,24 @@ class FlashcardCreator:
                     break
                 time.sleep(1)
 
+        #debug
+        print("Printing ocr_chunks...")
+        #print amount of chunks
+        print(len(ocr_chunks))
+        #print all ocr_chunks
+        print(ocr_chunks)
+
         #Init response list for the responses that we receive from OpenAI
         all_responses = []
         for chunk in ocr_chunks:
-            print("Creating thread with OCR chunk...")
+
+            #debug
+            #print("Printing chunk...")
+            #for debugging purposes, print the chunk and skip to the next iteration
+            #print(chunk)
+            #continue
+
+            #print("Creating thread with OCR chunk...")
             # Create a thread for each chunk
             thread = client.beta.threads.create(
                 messages=[{
@@ -81,6 +94,9 @@ class FlashcardCreator:
                         all_responses.extend(flashcards_chunk)
                     except json.JSONDecodeError:
                         continue
+
+        #debug
+        #return
 
         # Combine all flashcards into a single JSON object
         final_flashcards_json = {"flashcards": all_responses}
