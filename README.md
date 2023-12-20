@@ -26,12 +26,12 @@ Upon installing these prerequisites, make sure to update the config.env file wit
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/project_name
+   git clone https://github.com/omar7l/Slides_to_Quiz
 
 2. Navigate to the project directory:
 
    ```bash
-   cd project_name
+   cd Slides_to_Quiz
 
 3. Install the required Python packages:
 
@@ -47,7 +47,7 @@ Ensure you have Anki with the AnkiConnect plugin setup as well as Python (versio
 1. Navigate to the project directory:
 
    ```bash
-   cd project_name
+   cd Slides_to_Quiz
 
 2. Run the application like this:
 
