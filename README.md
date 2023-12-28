@@ -1,4 +1,4 @@
-**Study Material to Flashcards Converter**
+## AI Powered Flashcards creator
 
 ## Convert your study materials into interactive flashcards effortlessly!
 
