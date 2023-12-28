@@ -1,6 +1,6 @@
 ## AI Powered Flashcards creator
 
-## Convert your study materials into interactive flashcards effortlessly!
+Convert your study materials into interactive flashcards effortlessly!
 
 This Python-based tool is designed to transform lecture slides, summaries, and other study materials into flashcards, making learning more efficient and engaging. Ideal for students and educators alike, this project leverages AI to simplify your study process.
 
