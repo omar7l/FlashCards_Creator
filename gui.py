@@ -77,7 +77,7 @@ def relative_to_output(path: str) -> Path:
 window = TkinterDnD.Tk()
 window.geometry("604x830")
 window.configure(bg="#FFFFFF")
-window.title("Jet")
+window.title("AI Powered Flash Cards Creator")
 
 # create outer canvas
 main_canvas = Canvas(
@@ -91,11 +91,14 @@ main_canvas = Canvas(
 )
 main_canvas.place(x=0, y=0)
 
+center_x = 604 / 2
+center_y = 25.0
+
 main_canvas.create_text(
-    261.0,
-    6.0,
-    anchor="nw",
-    text="\nTitle",
+    center_x,
+    center_y,
+    anchor="center",
+    text="\nAI Powered Flashcards",
     fill="#000000",
     font=("Inter", 40 * -1)
 )
