@@ -57,6 +57,8 @@ class AnkiConverter:
             back_content = flashcard.get('back', '')
             self.add_flashcard(front_content, back_content)
 
+        print("Flashcards created successfully! and saved in anki")
+
     # create a function called check_decks() that checks if there are any decks in Anki that start with the deck_name_prefix
     # if there are, then set the entry deck_count.txt file to the number of decks that start with the deck_name_prefix
     # if there aren't, then delete the deck_count.txt file

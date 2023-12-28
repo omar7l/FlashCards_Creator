@@ -16,6 +16,7 @@ class OutputConverter:
     def convert_to_json(self, json_file_path, data):   # data is JSON data
         with open(json_file_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
+        print("Flashcards converted to json!")
 
     def convert_to_csv(self, csv_file_path, data):    # data is JSON data
 
@@ -25,6 +26,8 @@ class OutputConverter:
                 front = flashcard.get('front', '')
                 back = flashcard.get('back', '')
                 csv_writer.writerow([front, back])
+
+        print("Flashcards converted to csv!")
 
 
     def download_file(self, file_path):

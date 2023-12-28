@@ -48,8 +48,10 @@ class PDFConverter:
 
 
     def serialize_data(self, tmp_output):
+        print("data sertializing....")
         with open(tmp_output, 'r', encoding='utf-8') as file:
             data = file.read().replace('\n', '')
+            print("data sertialized")
             return data
 
     @staticmethod

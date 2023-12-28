@@ -1,6 +1,6 @@
 from idlelib import tooltip
 import tkinter as tk
-from tkinter import Canvas, Button, PhotoImage, filedialog
+from tkinter import Canvas, Button, PhotoImage, filedialog, ttk
 from tkinterdnd2 import TkinterDnD, DND_FILES
 from anki_converter import *
 from flashcard_creator import *
@@ -56,6 +56,7 @@ if os.name == 'nt':
 selected_file = None
 txt_select_1 = None
 txt_select_2 = None
+progress = None
 
 
 # function to get the path of the assets folder
@@ -290,6 +291,19 @@ radio_btn_3 = tk.Radiobutton(
 )
 radio_btn_3.place(x=423.0, y=684.0)
 
+# def updated_progress():
+#     if progress['value'] < 130:
+#         progress['value'] += 10
+#         main_canvas.after(1000, updated_progress)
+#
+# progress = ttk.Progressbar(
+#     main_canvas,
+#     orient='horizontal',
+#     mode='determinate',
+#     length=500,
+#     max=130
+# )
+# progress.place(x=50, y=795)
 
 def on_drop(event):
     file_path = event.data
@@ -355,7 +369,6 @@ def select_file():
     )
     clear_button.config(image=img_clear_clickable)
     convert_button.config(command=lambda: convert_file())
-
 
 def openFile():
     try:
@@ -432,13 +445,17 @@ def clear_selection():
 
 
 def convert_file():
-    pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator(ASSISTANT_ID,
-                                         API_KEY)  # enter the assistant id and api key here
+
 
     if on_radiobutton_selected(radio_var.get()) == 0:
         print("Please select an output data type")
         return
+    #
+    # progress.start(0)
+    # updated_progress()
+    pdf_convert = PDFConverter()
+    flashcard_creator = FlashcardCreator(ASSISTANT_ID,
+                                         API_KEY)  # enter the assistant id and api key here
 
     pdf_convert.perform_ocr_and_render(selected_file, TMP_FOLDER, TMP_OUTPUT, DPI, NUM_THREADS)
 
@@ -461,9 +478,11 @@ def convert_file():
     pdf_convert.delete_files(TMP_FOLDER)
     output_converter.delete_files(OUTPUT_PATH)
 
+    # progress.stop()
+
 
 def run():
-    window.resizable(False, False)
+    window.resizable(True, True)
     window.mainloop()
 
 
