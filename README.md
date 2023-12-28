@@ -1,6 +1,8 @@
-# Study Material to Flashcards Converter
+**Study Material to Flashcards Converter**
 
-This project is a Python script that helps convert study material, such as lecture slides or summaries, into flashcards.
+## Convert your study materials into interactive flashcards effortlessly!
+
+This Python-based tool is designed to transform lecture slides, summaries, and other study materials into flashcards, making learning more efficient and engaging. Ideal for students and educators alike, this project leverages AI to simplify your study process.
 
 ## Prerequisites
 
@@ -12,23 +14,23 @@ Before using the Study Material to Flashcards Converter, make sure you have the 
 
 ## Functionalities
 
-- Convert study material into flashcards: The script reads in the study material and retrieves the provided information using AI, which is then converted into a flashcards format.
-- Output in multiple data formats: the user can select in which format they like to receive the flashcards (JSON, CSV, Anki)
-- Direct Connection to Anki: By selecting the Anki format option, the script automatically creates Anki flashcard desk, which can be used within the Anki App.
-- GUI: A comprehensible GUI is created, to ensure easy usage for the program, using Tkinter and Figma.
-- Drag and Drop feature: Drag and drop feature implemented in the GUI, using Tkinterdnd2, for increased usability. 
+- **AI-Powered Conversion**: Extracts key information from study materials using AI and formats it into flashcards.
+- **Multiple Formats**: Choose to receive flashcards in JSON, CSV, or directly in Anki.
+- **Anki Integration**: Directly create Anki decks for use within the Anki App.
+- **User-Friendly GUI**: Easy-to-use interface built with Tkinter and Figma.
+- **Drag and Drop**: Simplify file selection with a drag-and-drop feature. 
 
 ## Setup
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/project_name
+   git clone https://github.com/omar7l/FlashCards_Creator
 
 2. Navigate to the project directory:
 
    ```bash
-   cd project_name
+   cd FlashCards_Creator
 
 3. Install the required Python packages:
 
@@ -44,7 +46,7 @@ Ensure you have Anki with the AnkiConnect plugin setup as well as Python (versio
 1. Navigate to the project directory:
 
    ```bash
-   cd project_name
+   cd FlashCards_Creator
 
 2. Run the application like this:
 
