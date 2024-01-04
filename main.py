@@ -1,3 +1,4 @@
+import re
 from idlelib import tooltip
 import tkinter as tk
 from tkinter import Canvas, Button, PhotoImage, filedialog, ttk
@@ -8,7 +9,13 @@ from output_converter import *
 from pdf_converter import *
 from dotenv import load_dotenv
 import os
+import logging
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
+logging.debug("Starting the program")
+logging.debug("Loading the environment variables")
 #Load the environment variables
 load_dotenv("config.env")
 
@@ -19,10 +26,12 @@ TMP_OUTPUT = os.getenv("TMP_OUTPUT")
 DPI = int(os.getenv("DPI"))
 NUM_THREADS = int(os.getenv("NUM_THREADS"))
 
-
+logging.debug("Setting up the required paths")
 MAIN_PATH = Path(__file__).parent
 ASSETS_PATH = Path(__file__).parent / "build" / "assets" / "frame0"
 OUTPUT_PATH = Path(__file__).parent / "output"
+
+logging.debug("Checking if the required directories exist")
 
 
 ''' Init the required directories if they don't exist
@@ -30,25 +39,38 @@ OUTPUT_PATH = Path(__file__).parent / "output"
 ./output
 '''
 if not os.path.exists(MAIN_PATH / TMP_FOLDER):
+    logging.debug("Creating the tmp folder")
     os.mkdir(MAIN_PATH / TMP_FOLDER)
 if not os.path.exists(MAIN_PATH / "output"):
+    logging.debug("Creating the output folder")
     os.mkdir(MAIN_PATH / "output")
 #delete files if there are any in tmp
+
+logging.debug("Checking if there are any files in the tmp folder")
 for filename in os.listdir(MAIN_PATH / TMP_FOLDER):
+    logging.debug("Deleting the file in the tmp folder")
     os.remove(MAIN_PATH / TMP_FOLDER / filename)
 
 #I have added this specific line of code to make the program work on windows.
 #This is because the program was not able to find the tcl and tk libraries.
 #For the moment, this should work fine, but if you have any issues, please let me know.
 if os.name == 'nt':
+    logging.debug("Setting up the required environment variables for Windows")
     #get the appdata local path
     appdata_local = os.getenv('LOCALAPPDATA')
-    os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tcl8.6"
-    os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tk8.6"
-    os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tcl8.6"
-    os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tk8.6"
-    os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tcl8.6"
-    os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tk8.6"
+    #check if path exists "\\Programs\\Python\\Python310\\tcl\\tcl8.6"
+    if os.path.exists(appdata_local + "\\Programs\\Python\\Python310\\tcl\\tcl8.6"):
+        os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tcl8.6"
+        os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python310\\tcl\\tk8.6"
+    if os.path.exists(appdata_local + "\\Programs\\Python\\Python39\\tcl\\tcl8.6"):
+        os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tcl8.6"
+        os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python39\\tcl\\tk8.6"
+    if os.path.exists(appdata_local + "\\Programs\\Python\\Python38\\tcl\\tcl8.6"):
+        os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python38\\tcl\\tcl8.6"
+        os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python38\\tcl\\tk8.6"
+    if os.path.exists(appdata_local + "\\Programs\\Python\\Python37\\tcl\\tcl8.6"):
+        os.environ['TCL_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tcl8.6"
+        os.environ['TK_LIBRARY'] = appdata_local + "\\Programs\\Python\\Python37\\tcl\\tk8.6"
 
 
 
@@ -76,7 +98,7 @@ def relative_to_output(path: str) -> Path:
 # create window
 window = TkinterDnD.Tk()
 window.geometry("604x830")
-window.configure(bg="#FFFFFF")
+window.configure(bg="#DFDFDF")
 window.title("AI Powered Flash Cards Creator")
 
 # create outer canvas
@@ -237,7 +259,7 @@ file_prev = Button(
     image=img_file_prev,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: openFile(),
+    command=lambda: open_file(),
     relief="flat",
 )
 
@@ -294,28 +316,16 @@ radio_btn_3 = tk.Radiobutton(
 )
 radio_btn_3.place(x=423.0, y=684.0)
 
-# def updated_progress():
-#     if progress['value'] < 130:
-#         progress['value'] += 10
-#         main_canvas.after(1000, updated_progress)
-#
-# progress = ttk.Progressbar(
-#     main_canvas,
-#     orient='horizontal',
-#     mode='determinate',
-#     length=500,
-#     max=130
-# )
-# progress.place(x=50, y=795)
-
 def on_drop(event):
     file_path = event.data
+    if(check_file(file_path) == False):
+        return
+
     file_name = os.path.basename(file_path)
     file_name = file_name[:-4]
 
     global selected_file
     selected_file = file_path
-    print(selected_file)
 
     name_canvas.delete("all")
     info_box.delete(txt_select_1)
@@ -339,18 +349,27 @@ def on_drop(event):
     clear_button.config(image=img_clear_clickable)
     convert_button.config(command=lambda: convert_file())
 
-    print(MAIN_PATH)
-    print(ASSETS_PATH)
+    logging.debug("File dropped")
+    logging.debug(f"Main path: {MAIN_PATH}")
+    logging.debug(f"Assets path: {ASSETS_PATH}")
 
 
 def select_file():
     file_path = filedialog.askopenfilename(title="Select a file")
+
+    #Check if the file selection is aborted
+    if not file_path:
+        logger.debug("File selection aborted")
+
+    #Default file Check
+    if(check_file(file_path) == False):
+        return
+
     file_name = os.path.basename(file_path)
     file_name = file_name[:-4]
 
     global selected_file
     selected_file = file_path
-    print(selected_file)
 
     name_canvas.delete("all")
     info_box.delete(txt_select_1)
@@ -370,21 +389,60 @@ def select_file():
         fill="#000000",
         font=("Inter", adjust_font_size() * -1)
     )
+
+
+    logging.debug(f"Selected file path: {file_path}")
     clear_button.config(image=img_clear_clickable)
     convert_button.config(command=lambda: convert_file())
+    logging.debug("File selected from the file dialog")
 
-def openFile():
+def open_file():
     try:
-        os.system(f'open "{selected_file}"')
+        logging.debug("Opening the file")
+        #check if file contains illegal characters
+        if re.search(r'[!@#$%^&*()+=\[\]\\\'\';,./{}|\":<>?~]', selected_file):
+            logging.debug("File contains illegal characters")
+            return
+        else:
+            logging.debug("File does not contain illegal characters")
+            logging.debug(f'Opening the file "{selected_file}"')
+            os.system(f'open "{selected_file}"')
     except Exception as e:
-        print(f"Error opening file: {e}")
+        logging.error(f"Error opening file: {e}")
 
-    print(selected_file)
 
+def check_file(file_path):
+    logging.debug("Checking if the file is a pdf file")
+
+    if file_path is None:
+        logging.debug("No file path provided")
+        return False
+
+    if not isinstance(file_path, str):
+        logging.debug("File path is not a string")
+        return False
+
+    # Extract the filename from the file path
+    filename = os.path.basename(file_path)
+
+    # Check for illegal characters in the filename
+    if re.search(r'[!@#$%^&*()+=\[\]{}|\\;:\'",<>?*]', filename):
+        logging.debug("Filename contains illegal characters")
+        return False
+
+    if not file_path.lower().endswith(".pdf"):
+        logging.debug("File is not a pdf file")
+        return False
+
+    if not os.path.exists(file_path):
+        logging.debug("File does not exist")
+        return False
+
+    logging.debug("File is OK!")
+    return True
 
 def adjust_font_size():
     text_name = os.path.basename(selected_file)
-    print(text_name)
 
     if len(text_name) > 40:
         font_size = int(min((int(175) + 150) / len(text_name), 19))
@@ -411,7 +469,7 @@ def hide_tooltip():
 
 
 def on_radiobutton_selected(value):
-    print(f"Selected option: {value}")
+    logging.debug(f"Selected option: {value}")
     if value != 0:
         convert_button.config(image=img_convert_clickable)
     return value
@@ -448,46 +506,43 @@ def clear_selection():
 
 
 def convert_file():
-
-
     if on_radiobutton_selected(radio_var.get()) == 0:
-        print("Please select an output data type")
+        logging.debug("No conversion option selected!")
         return
-    #
-    # progress.start(0)
-    # updated_progress()
+
+    #DEBUG --- You need to uncomment the following lines to make the program work
+
     pdf_convert = PDFConverter()
-    flashcard_creator = FlashcardCreator(ASSISTANT_ID,
-                                         API_KEY)  # enter the assistant id and api key here
+    #flashcard_creator = FlashcardCreator(ASSISTANT_ID,
+    #                                     API_KEY)
 
     pdf_convert.perform_ocr_and_render(selected_file, TMP_FOLDER, TMP_OUTPUT, DPI, NUM_THREADS)
 
-    data = flashcard_creator.ai_generate_flashcards(pdf_convert.serialize_data(TMP_OUTPUT))
+    #data = flashcard_creator.ai_generate_flashcards(pdf_convert.serialize_data(TMP_OUTPUT))
 
     output_converter = OutputConverter()
-    output_converter.convert_to_json(relative_to_output("output.json"), data)
+    #output_converter.convert_to_json(relative_to_output("output.json"), data)
 
     if on_radiobutton_selected(radio_var.get()) == 1:
-        output_converter.download_file(relative_to_output("output.json"))
+        logging.debug("Converting to JSON")
+        #output_converter.download_file(relative_to_output("output.json"))
     elif on_radiobutton_selected(radio_var.get()) == 2:
+        logging.debug("Converting to CSV")
         output_converter.convert_to_csv(relative_to_output("output.csv"), data)
         output_converter.download_file(relative_to_output("output.csv"))
     elif on_radiobutton_selected(radio_var.get()) == 3:
+        logging.debug("Converting to Anki")
         anki_converter = AnkiConverter()
         anki_converter.check_decks()
         anki_converter.create_deck()
         anki_converter.convert_to_anki(relative_to_output("output.json"))
 
     pdf_convert.delete_files(TMP_FOLDER)
-    output_converter.delete_files(OUTPUT_PATH)
-
-    # progress.stop()
-
+    #output_converter.delete_files(OUTPUT_PATH)
 
 def run():
     window.resizable(True, True)
     window.mainloop()
-
 
 if __name__ == "__main__":
     run()

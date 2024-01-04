@@ -1,6 +1,7 @@
 import json
 import time
 import openai
+import logging
 
 
 class FlashcardCreator:
@@ -47,8 +48,10 @@ class FlashcardCreator:
 
         #Init response list for the responses that we receive from OpenAI
         all_responses = []
+        current_chunk = 1
         for chunk in ocr_chunks:
-            print("Creating thread with OCR chunk...")
+            logging.debug(f"Processing chunk {current_chunk} of {len(ocr_chunks)}")
+            logging.info("Creating thread with OCR chunk...")
             # Create a thread for each chunk
             thread = client.beta.threads.create(
                 messages=[{
@@ -57,16 +60,16 @@ class FlashcardCreator:
                 }]
             )
 
-            print("Creating run with assistant...")
+            logging.info("Creating run with assistant...")
             client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=self.assistant_id
             )
 
-            print("Waiting for OCR chunk run to complete...")
+            logging.info("Waiting for OCR chunk run to complete...")
             wait_for_run_completion(thread.id)
 
-            print("Fetching final response for the chunk...")
+            logging.info("Fetching final response for the chunk...")
             messages = client.beta.threads.messages.list(thread_id=thread.id)
             for message in messages.data:
                 if message.role == 'assistant':

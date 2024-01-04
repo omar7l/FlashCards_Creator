@@ -3,15 +3,27 @@ import os
 import fitz
 import pytesseract
 from PIL import Image
+import logging
 
 
 class PDFConverter:
+
+    total_pages_to_render = 0
+    total_pages_to_ocr = 0
+    current_progress_render = 0
+    current_progress_ocr = 0
+
+
+
+
     def __init__(self):
         pass
 
     @staticmethod
     def render_pdf_worker(pdf_file, image_folder, page_number, dpi=300):
         pdf_document = fitz.open(pdf_file)
+        #PDF Count
+        self.total_pages_to_render = pdf_document.page_count
         page = pdf_document.load_page(page_number)
         pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
         pil_image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
@@ -28,6 +40,7 @@ class PDFConverter:
 
     def perform_ocr_and_render(self, pdf_file, image_folder, output_text_file, dpi=300, num_threads=1):
         with open(output_text_file, 'w', encoding='utf-8') as txt_file:
+            logging.info(f'Extracting text from {pdf_file}...')
             with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
                 pdf_document = fitz.open(pdf_file)
                 for page_number in range(pdf_document.page_count):
@@ -44,14 +57,14 @@ class PDFConverter:
                     page_number = image_files.index(image_path) + 1
                     txt_file.write(f'Page {page_number}:\n')
                     txt_file.write(f'{text}\n\n')
-                    print(f'Extracted text from Page {page_number}')
+                    logging.info(f'Extracted text from Page {page_number}')
 
 
     def serialize_data(self, tmp_output):
-        print("data sertializing....")
+        logging.debug("Serializing data...")
         with open(tmp_output, 'r', encoding='utf-8') as file:
             data = file.read().replace('\n', '')
-            print("data sertialized")
+            logging.debug("Data successfully serialized!")
             return data
 
     @staticmethod
@@ -62,4 +75,4 @@ class PDFConverter:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
                     os.unlink(file_path)
             except Exception as e:
-                print('Failed to delete %s. Reason: %s' % (file_path, e))
+                logging.error('Failed to delete %s. Reason: %s' % (file_path, e))

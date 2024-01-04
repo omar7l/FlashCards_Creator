@@ -12,7 +12,6 @@ class OutputConverter:
     def __init__(self):
         pass
 
-# write a function convert_to_json() that takes in a JSON file path and data(which already is in JSON format) and writes the data to the JSON file
     def convert_to_json(self, json_file_path, data):   # data is JSON data
         with open(json_file_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
@@ -45,7 +44,6 @@ class OutputConverter:
         except Exception as e:
             print(f"Error saving file: {e}")
 
-    # write a function delete_files() that takes in a folder path and deletes all files in that folder
 
     def delete_files(self, output_folder):
         for filename in os.listdir(output_folder):
