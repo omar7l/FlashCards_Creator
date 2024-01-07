@@ -12,11 +12,12 @@ class OutputConverter:
     def __init__(self):
         pass
 
+    # This function converts the data to JSON
     def convert_to_json(self, json_file_path, data):   # data is JSON data
         with open(json_file_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
-        print("Flashcards converted to json!")
 
+    # This function converts the JSON data to CSV
     def convert_to_csv(self, csv_file_path, data):    # data is JSON data
 
         with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
@@ -26,9 +27,8 @@ class OutputConverter:
                 back = flashcard.get('back', '')
                 csv_writer.writerow([front, back])
 
-        print("Flashcards converted to csv!")
 
-
+    # This function downloads the file to the local Downloads folder
     def download_file(self, file_path):
         try:
             # Get the downloads folder path
@@ -44,7 +44,7 @@ class OutputConverter:
         except Exception as e:
             print(f"Error saving file: {e}")
 
-
+    # This function deletes the files in the output folder
     def delete_files(self, output_folder):
         for filename in os.listdir(output_folder):
             file_path = os.path.join(output_folder, filename)

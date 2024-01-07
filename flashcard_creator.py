@@ -28,8 +28,10 @@ class FlashcardCreator:
             else:
                 chunks.append(current_chunk)
                 current_chunk = sentence + '.'
+                logging.debug(f"Chunk {len(chunks)} created")
         if current_chunk:
             chunks.append(current_chunk)
+            logging.debug(f"Chunk {len(chunks)}created")
         return chunks
 
     def ai_generate_flashcards(self, ocr_data):

@@ -31,7 +31,7 @@ class AnkiConverter:
         # Save the updated deck count to the file
         self.deck_count_file.write_text(str(self.deck_count))
 
-    # This function adds a flashcard to Anki
+    # This function adds a flashcard to an Anki deck
     def add_flashcard(self, front, back):
         payload = {
             "action": "addNote",

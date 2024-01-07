@@ -6,6 +6,7 @@ from PIL import Image
 import logging
 
 
+
 class PDFConverter:
 
     total_pages_to_render = 0
@@ -22,8 +23,6 @@ class PDFConverter:
     @staticmethod
     def render_pdf_worker(pdf_file, image_folder, page_number, dpi=300):
         pdf_document = fitz.open(pdf_file)
-        #PDF Count
-        self.total_pages_to_render = pdf_document.page_count
         page = pdf_document.load_page(page_number)
         pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
         pil_image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
@@ -76,3 +75,5 @@ class PDFConverter:
                     os.unlink(file_path)
             except Exception as e:
                 logging.error('Failed to delete %s. Reason: %s' % (file_path, e))
+
+

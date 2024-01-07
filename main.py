@@ -1,6 +1,7 @@
 import re
 from idlelib import tooltip
 import tkinter as tk
+from threading import Thread
 from tkinter import Canvas, Button, PhotoImage, filedialog, ttk
 from tkinterdnd2 import TkinterDnD, DND_FILES
 from anki_converter import *
@@ -11,8 +12,8 @@ from dotenv import load_dotenv
 import os
 import logging
 
+# Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 
 logging.debug("Starting the program")
 logging.debug("Loading the environment variables")
@@ -78,7 +79,8 @@ if os.name == 'nt':
 selected_file = None
 txt_select_1 = None
 txt_select_2 = None
-progress = None
+progress_bar = None
+
 
 
 # function to get the path of the assets folder
@@ -116,6 +118,7 @@ main_canvas.place(x=0, y=0)
 center_x = 604 / 2
 center_y = 25.0
 
+# create Title
 main_canvas.create_text(
     center_x,
     center_y,
@@ -124,6 +127,7 @@ main_canvas.create_text(
     fill="#000000",
     font=("Inter", 40 * -1)
 )
+# create Subtitle
 main_canvas.create_text(
     85.0,
     122.0,
@@ -132,7 +136,7 @@ main_canvas.create_text(
     fill="#000000",
     font=("Inter", 25 * -1)
 )
-
+# create DnD field
 dnd_field_img = PhotoImage(
     file=relative_to_assets("dnd_field.png"))
 entry_bg_1 = main_canvas.create_image(
@@ -153,6 +157,7 @@ dnd_canvas.place(x=112.0, y=213.0)
 dnd_canvas.drop_target_register(DND_FILES)
 dnd_canvas.dnd_bind('<<Drop>>', lambda event: on_drop(event))
 
+# create info box and set the text
 info_box = Canvas(
     dnd_canvas,
     bd=0,
@@ -180,6 +185,7 @@ txt_select_2 = info_box.create_text(
     fill="#A0A0A0",
     font=("Inter", 12 * -1)
 )
+# create tooltip which display the illegal characters when hovering over the info box
 tooltip = Canvas(
     window,
     bd=0,
@@ -200,6 +206,7 @@ tooltip.place_forget()
 info_box.bind("<Enter>", lambda event: show_tooltip())
 info_box.bind("<Leave>", lambda event: hide_tooltip())
 
+# create buttons
 img_select_clickable = PhotoImage(
     file=relative_to_assets("select_clickable.png"))
 select_button = Button(
@@ -224,7 +231,6 @@ convert_button = Button(
     image=img_convert_unclickable,
     borderwidth=0,
     highlightthickness=0,
-    # command=lambda: upload_file(),
     relief="flat"
 )
 convert_button.place(
@@ -251,7 +257,7 @@ clear_button.place(
     width=150.0,
     height=50.0
 )
-
+# create file preview button and canvas to display the file name
 img_file_prev = PhotoImage(
     file=relative_to_assets("file_preview.png"))
 file_prev = Button(
@@ -273,6 +279,7 @@ name_canvas = Canvas(
 )
 name_canvas.place(x=70.0, y=5.0)
 
+# create radio buttons and text
 main_canvas.create_text(
     102.0,
     639.0,
@@ -316,6 +323,7 @@ radio_btn_3 = tk.Radiobutton(
 )
 radio_btn_3.place(x=423.0, y=684.0)
 
+# function to handle the drop event
 def on_drop(event):
     file_path = event.data
     if(check_file(file_path) == False):
@@ -353,13 +361,13 @@ def on_drop(event):
     logging.debug(f"Main path: {MAIN_PATH}")
     logging.debug(f"Assets path: {ASSETS_PATH}")
 
-
+# function to handle the file selection
 def select_file():
     file_path = filedialog.askopenfilename(title="Select a file")
 
     #Check if the file selection is aborted
     if not file_path:
-        logger.debug("File selection aborted")
+        logging.debug("File selection aborted")
 
     #Default file Check
     if(check_file(file_path) == False):
@@ -396,6 +404,7 @@ def select_file():
     convert_button.config(command=lambda: convert_file())
     logging.debug("File selected from the file dialog")
 
+# function to open the file from the file preview
 def open_file():
     try:
         logging.debug("Opening the file")
@@ -410,7 +419,7 @@ def open_file():
     except Exception as e:
         logging.error(f"Error opening file: {e}")
 
-
+# function to check the file properties
 def check_file(file_path):
     logging.debug("Checking if the file is a pdf file")
 
@@ -441,6 +450,7 @@ def check_file(file_path):
     logging.debug("File is OK!")
     return True
 
+# function to adjust the font size of the file name based on the length of the file name
 def adjust_font_size():
     text_name = os.path.basename(selected_file)
 
@@ -453,7 +463,7 @@ def adjust_font_size():
 
     return int(font_size)
 
-
+# function to show the tooltip
 def show_tooltip():
     while True:
         if selected_file is None:
@@ -463,18 +473,19 @@ def show_tooltip():
             tooltip.place_forget()
             break
 
-
+# function to hide the tooltip
 def hide_tooltip():
     tooltip.place_forget()
 
 
+# function to handle the radio button selection
 def on_radiobutton_selected(value):
     logging.debug(f"Selected option: {value}")
     if value != 0:
         convert_button.config(image=img_convert_clickable)
     return value
 
-
+# function to clear the selection
 def clear_selection():
     global selected_file
     selected_file = None
@@ -504,43 +515,110 @@ def clear_selection():
 
     radio_var.set(0)
 
-
+# function to start the conversion process
 def convert_file():
+
     if on_radiobutton_selected(radio_var.get()) == 0:
         logging.debug("No conversion option selected!")
         return
 
-    #DEBUG --- You need to uncomment the following lines to make the program work
+    # Initialize the progress bar and start it
+    init_progress_bar()
+    progress_bar.place(x=402, y=795)
+    progress_bar.start()
+    logging.debug("Starting the conversion process")
 
-    pdf_convert = PDFConverter()
-    #flashcard_creator = FlashcardCreator(ASSISTANT_ID,
-    #                                     API_KEY)
+    # Start the conversion process in a separate thread
+    conversion_thread = Thread(target=perform_conversion)
+    conversion_thread.start()
 
-    pdf_convert.perform_ocr_and_render(selected_file, TMP_FOLDER, TMP_OUTPUT, DPI, NUM_THREADS)
+# function to perform the conversion
+def perform_conversion():
 
-    #data = flashcard_creator.ai_generate_flashcards(pdf_convert.serialize_data(TMP_OUTPUT))
+    try:
 
-    output_converter = OutputConverter()
-    #output_converter.convert_to_json(relative_to_output("output.json"), data)
+        pdf_convert = PDFConverter()
+        flashcard_creator = FlashcardCreator(ASSISTANT_ID,
+                                             API_KEY)
 
-    if on_radiobutton_selected(radio_var.get()) == 1:
-        logging.debug("Converting to JSON")
-        #output_converter.download_file(relative_to_output("output.json"))
-    elif on_radiobutton_selected(radio_var.get()) == 2:
-        logging.debug("Converting to CSV")
-        output_converter.convert_to_csv(relative_to_output("output.csv"), data)
-        output_converter.download_file(relative_to_output("output.csv"))
-    elif on_radiobutton_selected(radio_var.get()) == 3:
-        logging.debug("Converting to Anki")
-        anki_converter = AnkiConverter()
-        anki_converter.check_decks()
-        anki_converter.create_deck()
-        anki_converter.convert_to_anki(relative_to_output("output.json"))
+        pdf_convert.perform_ocr_and_render(selected_file, TMP_FOLDER, TMP_OUTPUT, DPI, NUM_THREADS)
+        ocr_data = pdf_convert.serialize_data(TMP_OUTPUT)
+        data = flashcard_creator.ai_generate_flashcards(ocr_data)
 
-    pdf_convert.delete_files(TMP_FOLDER)
-    #output_converter.delete_files(OUTPUT_PATH)
+        output_converter = OutputConverter()
+        output_converter.convert_to_json(relative_to_output("output.json"), data)
 
+        # handle the different conversion options and download the file respectively
+        if on_radiobutton_selected(radio_var.get()) == 1:
+            logging.debug("Converting to JSON")
+            output_converter.download_file(relative_to_output("output.json"))
+        elif on_radiobutton_selected(radio_var.get()) == 2:
+            logging.debug("Converting to CSV")
+            output_converter.convert_to_csv(relative_to_output("output.csv"), data)
+            output_converter.download_file(relative_to_output("output.csv"))
+        elif on_radiobutton_selected(radio_var.get()) == 3:
+            logging.debug("Converting to Anki")
+            anki_converter = AnkiConverter()
+            anki_converter.check_decks()
+            anki_converter.create_deck()
+            anki_converter.convert_to_anki(relative_to_output("output.json"))
+
+        # Delete the files in the tmp and output folders
+        pdf_convert.delete_files(TMP_FOLDER)
+        output_converter.delete_files(OUTPUT_PATH)
+
+        # Stop the progress bar
+        progress_bar.stop()
+        progress_bar.place_forget()
+        logging.debug("Conversion process completed")
+
+    except Exception as e:
+        logging.error(f"Error performing conversion: {e}")
+
+
+# function to check if the API key is set
+def check_api_key():
+    api_key = os.getenv('API_KEY')
+    if api_key is None or api_key.strip() == "":
+        # API key is not set, prompt the user to enter it
+        logging.debug("API key not found. Prompting the user to enter it.")
+        user_api_key = tk.simpledialog.askstring("API Key", "Please enter your API Key:")
+        if user_api_key is not None and user_api_key.strip() != "":
+            os.environ['API_KEY'] = user_api_key
+        else:
+            # If the user clicks Cancel or enters an empty API key, exit the application
+            logging.debug("API key not provided. Exiting the application.")
+            window.destroy()
+            return False
+    return True
+
+# function to initialize the progress bar
+def init_progress_bar():
+    global progress_bar
+    s = ttk.Style()
+    s.theme_use("clam")
+    s.configure("TProgressbar",
+                background='#5498FF',
+                throughcolor="#000000",
+                bordercolor='#FFFFFF',
+                lightcolor='#B6D3FF',
+                darkcolor='#3C64A0')
+
+    progress_bar = ttk.Progressbar(window,
+                                   mode="indeterminate",
+                                   length=150,
+                                   maximum=100,
+                                   value=0,
+                                   orient="horizontal",
+                                   style="TProgressbar")
+    logging.debug("Progress bar initialized")
+
+# function to run the application
 def run():
+
+    if not check_api_key():
+        return
+
     window.resizable(True, True)
     window.mainloop()
 
