@@ -11,6 +11,7 @@ Before using the Study Material to Flashcards Converter, make sure you have the 
 - Anki: [Anki](https://apps.ankiweb.net/)
 - AnkiConnect: [AnkiConnect](https://github.com/FooSoft/anki-connect)
 - Python (version 3.x)
+- Tesseract: [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
 
 ## Functionalities
 
@@ -51,7 +52,7 @@ Ensure you have Anki with the AnkiConnect plugin setup as well as Python (versio
 2. Run the application like this:
 
    ```bash
-   python3 gui.py
+   python3 main.py
 
 3. Select your file:
 
