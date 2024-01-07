@@ -35,12 +35,13 @@ Before using the Study Material to Flashcards Converter, make sure you have the 
 
 3. Install the required Python packages:
 
+   If there are problems with the installation of the requirements, manually install the packages via the python interpreter settings.
+
    ```bash
    pip install -r requirements.txt
 
-If there are problems with the installation of the requirements, manually install the packages via the python interpreter settings.
 
-4. Ensure prerequirements are met:
+5. Ensure prerequirements are met:
 
 Ensure you have Anki with the AnkiConnect plugin setup as well as Python (version 3.x) and Tesseract (latest version) installed.
 
