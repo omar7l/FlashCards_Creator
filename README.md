@@ -38,7 +38,11 @@ Before using the Study Material to Flashcards Converter, make sure you have the 
    ```bash
    pip install -r requirements.txt
    ```
-   If there are problems with the installation of the requirements, manually install the packages via the python interpreter settings.
+   If you encounter issues while installing any requirements, including `pymupdf`, through the command line, you can try installing them directly in PyCharm:
+      1. Open PyCharm and navigate to `File > Settings > Project: YourProjectName > Python Interpreter`.
+      2. Click on the `+` button to open the package manager.
+      3. Search for the package you need to install (e.g., `pymupdf`) and click on `Install Package`.
+      4. After installation, verify the installation by attempting to import the package in your Python script.
 
 5. Ensure prerequirements are met:
 
