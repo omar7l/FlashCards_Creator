@@ -40,7 +40,7 @@ Before using the Study Material to Flashcards Converter, make sure you have the 
 
 4. Ensure prerequirements are met:
 
-Ensure you have Anki with the AnkiConnect plugin setup as well as Python (version 3.x) installed.
+Ensure you have Anki with the AnkiConnect plugin setup as well as Python (version 3.x) and Tesseract (latest version) installed.
 
 ## How to use
 
